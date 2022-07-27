@@ -31,9 +31,12 @@ function playRound(playerChoice, computerChoice) {
 function game() {
     for (let i = 0; i < 5; i++) {
         let playerChoice = prompt('Rock Paper Scizzor?', '');
-        while (playerChoice != 'rock' && playerChoice != 'paper' && playerChoice != 'scizzor') {
+        while (playerChoice !== 'rock' && playerChoice !=='paper' && playerChoice !== 'scizzor' && playerChoice !== null) {
             console.log('Invalid Input. Try Again!');
             playerChoice = prompt('Rock Paper Scizzor?', '');
+        }
+        if (playerChoice === null) {
+            return;
         }
 
         let computerChoice = getComputerChoice();
