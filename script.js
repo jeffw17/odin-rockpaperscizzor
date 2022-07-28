@@ -1,3 +1,12 @@
+// GLOBAL VARIABLE
+
+let playerScore = 0;
+let computerScore = 0;
+let currentRound = 1;
+
+let moves = ['rock', 'paper', 'scissor']
+
+
 function getComputerChoice() {
     let rand = Math.random()
     if (rand < 0.33) {
@@ -17,42 +26,15 @@ function playRound(playerChoice, computerChoice) {
     if ((playerChoice == 'rock' && computerChoice == 'scissor') || 
         (playerChoice == 'scissor' && computerChoice == 'paper') || 
         (playerChoice == 'paper' && computerChoice == 'rock')) {
-            return 'You Win! ' + playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1) + ' Beats ' + computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1)
+            return 1
         }
     else if (playerChoice === computerChoice) {
-        return 'Tie Game!'
+        return 0
     }
     else {
-        return 'You Lose! ' + computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1) + ' Beats ' + playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1)
+        return -1
     }
 }
-
-function checkValidInput(playerChoice) {
-    if (playerChoice !== 'rock' && playerChoice !=='paper' && playerChoice !== 'scissor' && playerChoice !== null) {
-        return false;
-    } else {
-        return true;
-    }
-}
-
-
-// function game() {
-//     for (let i = 0; i < 5; i++) {
-//         let playerChoice = prompt('Rock Paper Scizzor?', '');
-//         while (playerChoice !== 'rock' && playerChoice !=='paper' && playerChoice !== 'scizzor' && playerChoice !== null) {
-//             console.log('Invalid Input. Try Again!');
-//             playerChoice = prompt('Rock Paper Scizzor?', '');
-//         }
-//         if (playerChoice === null) {
-//             return;
-//         }
-
-//         let computerChoice = getComputerChoice();
-        
-//         let result = playRound(playerChoice, computerChoice);
-//         console.log(result);
-//     }
-// }
 
 function fetchImage(choice) {
     if (choice === 'rock') {
@@ -66,55 +48,111 @@ function fetchImage(choice) {
     }
 }
 
-function game() {
+function editScoreboard() {
+    let score = document.querySelector('.score');
+    score.innerHTML = String(playerScore) + ' : ' + String(computerScore);
+}
+
+function updateScores(result) {
+    if (result === 1) {
+        playerScore += 1;
+        currentRound += 1;
+    }
+    else if (result === -1) {
+        computerScore += 1;
+        currentRound += 1;
+    }
+    editScoreboard();
+}
+
+function resetScores() {
+    playerScore = 0;
+    computerScore = 0;
+    currentRound = 1;
+    editScoreboard();
+}
+
+function getMessage(result, playerChoice, computerChoice) {
+    if (result === 1) {
+        return 'You won the round! ' + playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1) + ' Beats ' + computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1)
+    } 
+    else if (result === 0) {
+        return 'Tie! Go again'
+    } 
+    else if (result === -1) {
+        return 'You lose the round! ' + computerChoice.charAt(0).toUpperCase() + computerChoice.slice(1) + ' Beats ' + playerChoice.charAt(0).toUpperCase() + playerChoice.slice(1)
+    }
+}
+
+function printMessage(result, playerChoice, computerChoice) {
+    let res = document.querySelector('.res');
+    if (playerScore !== 3 && computerScore !== 3) {
+        res.innerHTML = getMessage(result, playerChoice, computerChoice);
+    } else {
+        if (playerScore > computerScore) {
+            res.innerHTML = 'You won the game!!'
+        } else {
+            res.innerHTML = 'You lost the game..'
+        }
+
+        let ingame = document.querySelector('.ingame');
+        let btnContainer = document.createElement('div');
+        btnContainer.className = 'start-game-btn';
+        let btn = document.createElement('button');
+        btn.innerHTML = 'Play Again';
+        btnContainer.appendChild(btn);
+        btn.onclick = () => {
+            window.location.reload();
+        };
+        ingame.appendChild(btnContainer);
+    }
+}
+
+function startGame() {
     let buttons = document.querySelectorAll('.btn');
-    
-    buttons[0].addEventListener('click', () => {
-        let computerChoice = getComputerChoice();
 
-        let computerImg = document.querySelector('.computer-img');
-        computerImg.src = fetchImage(computerChoice);
+    buttons.forEach((btn, key) => {
+        let playerChoice = moves[key];
 
-        let playerImg = document.querySelector('.player-img');
-        playerImg.src = fetchImage('rock');
+        btn.addEventListener('click', (e) => {
+            let computerChoice = getComputerChoice();
 
-        let result = playRound('rock', computerChoice);
+            let computerImg = document.querySelector('.computer-img');
+            computerImg.src = fetchImage(computerChoice);
 
-        let res = document.querySelector('.result');
-        res.innerHTML = result;
-    })
+            let playerImg = document.querySelector('.player-img');
+            playerImg.src = fetchImage(playerChoice);
 
-    buttons[1].addEventListener('click', () => {
-        let computerChoice = getComputerChoice();
+            let result = playRound(playerChoice, computerChoice);
 
-        let computerImg = document.querySelector('.computer-img');
-        computerImg.src = fetchImage(computerChoice);
-
-        let playerImg = document.querySelector('.player-img');
-        playerImg.src = fetchImage('paper');
-
-        let result = playRound('paper', computerChoice);
-
-        let res = document.querySelector('.result');
-        res.innerHTML = result;
-    })
-
-    buttons[2].addEventListener('click', () => {
-        let computerChoice = getComputerChoice();
-
-        let computerImg = document.querySelector('.computer-img');
-        computerImg.src = fetchImage(computerChoice);
-
-        let playerImg = document.querySelector('.player-img');
-        playerImg.src = fetchImage('scissor');
-
-        let result = playRound('scissor', computerChoice);
-
-        let res = document.querySelector('.result');
-        res.innerHTML = result;
-
-
+            updateScores(result);
+            printMessage(result, playerChoice, computerChoice);
+        })
     })
 }
 
-game()
+function stopGame() {
+    let buttons = document.querySelectorAll('.btn');
+
+    buttons.forEach((btn, key) => {
+        btn.addEventListener('click', (e) => {
+            e.stopImmediatePropagation();
+        }, true)
+    })
+}
+
+let sbtn = document.querySelector('.sbtn');
+sbtn.onclick = () => {
+    let res = document.querySelector('.result');
+    let pregame = document.querySelector('.pregame');
+    pregame.remove();
+    res.innerHTML = '<div class="ingame"><div class="score">0 : 0</div><div class="res"></div></div>';
+    startGame();
+}
+
+// Check for possible victory
+setInterval(() => {
+    if (playerScore === 3 || computerScore === 3) {
+        stopGame();
+    }
+}, 500)
